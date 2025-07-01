@@ -8,6 +8,7 @@ import latis.model.*
 import latis.time.Time
 import latis.util.Identifier
 import latis.util.Identifier.id
+import latis.util.Identifier.id
 
 /**
  * Sine wave time series dataset.

@@ -6,14 +6,22 @@ val latisVersion = "cebc9fac" //TODO: update after SSE merged
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "ch.qos.logback"                % "logback-classic"            % "1.3.14" % Runtime,
-    "com.github.latis-data.latis3" %% "latis3-core"                % latisVersion,
-    "com.github.latis-data.latis3" %% "latis3-server"              % latisVersion,
-    "com.github.latis-data.latis3" %% "dap2-service-interface"     % latisVersion,
-    "com.github.latis-data.latis3" %% "latis3-service-interface"   % latisVersion,
+    //"com.github.latis-data.latis3" %% "latis3-core"                % latisVersion,
+    //"com.github.latis-data.latis3" %% "latis3-server"              % latisVersion,
+    //"com.github.latis-data.latis3" %% "dap2-service-interface"     % latisVersion,
+    //"com.github.latis-data.latis3" %% "latis3-service-interface"   % latisVersion,
+    "io.latis-data" %% "latis3-core"                % "0.1.0-SNAPSHOT",
+    "io.latis-data" %% "latis3-jdbc"                % "0.1.0-SNAPSHOT",
+    "io.latis-data" %% "latis3-server"              % "0.1.0-SNAPSHOT",
+    "io.latis-data" %% "dap2-service-interface"     % "0.1.0-SNAPSHOT",
+    "io.latis-data" %% "latis3-service-interface"   % "0.1.0-SNAPSHOT",
+    "org.xerial"      % "sqlite-jdbc" % "3.50.1.0",
+    "org.scalameta" %% "munit" % "0.7.29" % Test,
+    "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
   ),
   resolvers ++= Seq(
     "Unidata" at "https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases",
-    "jitpack" at "https://jitpack.io"
+   // "jitpack" at "https://jitpack.io"
   ),
   scalacOptions -= "-Xfatal-warnings"
 )
@@ -70,8 +78,8 @@ lazy val dockerSettings = Seq(
   )
 )
 
-lazy val root = project
-  .in(file("."))
+lazy val core = project
+  //.in(file("."))
   .enablePlugins(DockerPlugin)
   .enablePlugins(GitVersioning)
   .settings(commonSettings)
@@ -79,4 +87,16 @@ lazy val root = project
   .settings(gitSettings)
   .settings(
     name := "latis-simulator"
+  )
+
+lazy val examples = project
+  .dependsOn(core)
+  .settings(commonSettings)
+  .settings(
+    name := "examples",
+    libraryDependencies ++= Seq(
+      "org.tpolecat"   %% "doobie-core" % "1.0.0-RC9",
+      "com.h2database"  % "h2"          % "2.2.224",
+      //"org.xerial"      % "sqlite-jdbc" % "3.50.1.0",
+    )
   )
