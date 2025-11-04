@@ -22,7 +22,8 @@ case class Sine(period: FiniteDuration) extends MapOperation {
     sample => sample match {
       case Sample(_, RangeData(Number(t))) =>
         //TODO: make sure time has units of ms
-        val sin = math.sin(2 * math.Pi * t / period.toMillis)
+        // Round to seconds to improve reproducibility
+        val sin = math.sin(2 * math.Pi * Math.round(t / 1000) / period.toSeconds)
         Sample(DomainData(t), RangeData(DoubleValue(sin)))
     }
 
