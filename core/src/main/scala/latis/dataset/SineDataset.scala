@@ -8,6 +8,7 @@ import latis.model.*
 import latis.time.Time
 import latis.util.Identifier
 import latis.util.Identifier.id
+import latis.util.Identifier.id
 
 /**
  * Sine wave time series dataset.
@@ -19,9 +20,9 @@ object SineDataset {
   private val model: DataType =
     (for {
       time <- Time.fromMetadata(Metadata(
-        "id" -> "time",
+        "id"    -> "time",
         "units" -> "milliseconds since 1970-01-01",
-        "type" -> "long"
+        "type"  -> "long"
       ))
       value = Scalar(id"value", DoubleValueType)
       func <- Function.from(time, value)

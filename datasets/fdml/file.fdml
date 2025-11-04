@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dataset id="file">
+  <source uri="file:///tmp/file.txt"/>
+  <adapter class="latis.input.TextAdapter"/>
+  <function>
+    <scalar id="time"
+            type="double"
+            units="milliseconds since 1970-01-01"
+            class="latis.time.Time"/>
+    <scalar id="value" type="double"/>
+  </function>
+</dataset>
