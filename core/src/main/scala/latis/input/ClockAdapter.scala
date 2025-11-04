@@ -27,7 +27,8 @@ case class ClockAdapter(
 ) extends StreamingAdapter[Long] {
 
   def recordStream(uri: URI): Stream[IO, Long] = {
-    val now = Clock[IO].realTime.map(_.toMillis)
+    // Use second precision so results are more reproducible
+    val now = Clock[IO].realTime.map(_.toSeconds * 1000) //ms since epoch
     val hist = now.map { now =>
       List.range(now - history.toMillis, now, cadence.toMillis)
     }
