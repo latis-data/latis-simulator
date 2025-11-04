@@ -28,11 +28,12 @@ object ClockDataset {
 
   def apply(
     id: Identifier,
-    cadence: FiniteDuration
+    cadence: FiniteDuration,
+    history: FiniteDuration
   ): Dataset = new AdaptedDataset(
     Metadata(id),
     model,
-    ClockAdapter(cadence),
+    ClockAdapter(cadence, history),
     null
   )
 }

@@ -22,14 +22,17 @@ import latis.model.*
  * few ms.
  */
 case class ClockAdapter(
-  cadence: FiniteDuration) extends StreamingAdapter[Long] {
-  //TODO: add lag: time before now
-
-  private val source = Stream.iterate(0L)(_ + cadence.toMillis)
+  cadence: FiniteDuration,
+  history: FiniteDuration
+) extends StreamingAdapter[Long] {
 
   def recordStream(uri: URI): Stream[IO, Long] = {
     val now = Clock[IO].realTime.map(_.toMillis)
-    Stream.repeatEval(now).spaced(1.second) //.evalTap(IO.println)
+    val hist = now.map { now =>
+      List.range(now - history.toMillis, now, cadence.toMillis)
+    }
+    Stream.evalSeq(hist) ++
+    Stream.repeatEval(now).spaced(cadence) //.evalTap(IO.println)
   }
 
   def parseRecord(t: Long): Option[Sample] =
@@ -39,8 +42,8 @@ case class ClockAdapter(
 
 object ClockAdapter extends AdapterFactory {
 
-  //TODO: use cadence property
+  //TODO: use cadence and history properties
   def apply(model: DataType, config: AdapterConfig): ClockAdapter =
-    ClockAdapter(1.second)
+    ClockAdapter(1.second, 10.seconds)
 
 }

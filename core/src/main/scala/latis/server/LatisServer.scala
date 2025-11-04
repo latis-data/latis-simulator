@@ -10,6 +10,7 @@ import cats.effect.IOApp
 import cats.effect.Resource
 import cats.syntax.all.*
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+import pureconfig.module.catseffect.syntax.*
 
 import latis.catalog.Catalog
 import latis.catalog.FdmlCatalog
@@ -23,16 +24,20 @@ import latis.ops.Sine
 import latis.server.Latis3ServerBuilder.*
 import latis.service.dap2.Dap2Service
 import latis.time.Time
+import latis.util.ClockConfig
 import latis.util.Identifier.id
 
 object LatisServer extends IOApp {
-
-  private val datasets = List(
-    SineDataset(id"sine", 1.second, 1.minute, 60),
-    ClockDataset(id"clock", 1.second),
-    UpdatingDataset(FdmlReader.read(new URI("datasets/fdml/file.fdml"), false), 5.seconds),
-    dbDataset(5.seconds)
-  )
+  
+  val getClockConfig: IO[ClockConfig] =
+    latisConfigSource.at("clock").loadF[IO, ClockConfig]()
+    
+  //private val datasets = List(
+  //  SineDataset(id"sine", 1.second, 1.minute, 60),
+  //  ClockDataset(id"clock", clockConfig, 1.minute),
+  //  //UpdatingDataset(FdmlReader.read(new URI("datasets/fdml/file.fdml"), false), 5.seconds),
+  //  //dbDataset(5.seconds)
+  //)
   /*
   the file dataset shows up as an AdaptedDataset in the TextEncoder, where are we losing the wrapper?
   it's finding the fdml file dataset
@@ -51,6 +56,11 @@ object LatisServer extends IOApp {
       //  FdmlCatalog.fromDirectory(catalogConf.dir, catalogConf.validate, operationRegistry)
       //)
       //catalog      = fdmlCat |+| Catalog(datasets*)
+      clockConfig <- Resource.eval(getClockConfig)
+      datasets     = List(
+        SineDataset(id"sine", 1.second, 1.minute, 60),
+        ClockDataset(id"clock", clockConfig.cadence, clockConfig.history)
+      )
       catalog      = Catalog(datasets*)
       interfaces   = List(
         "dap2" -> new Dap2Service(catalog, operationRegistry)
